@@ -6,6 +6,8 @@ require 'status_column/available_iterator'
 require 'state_machine'
 
 module StatusColumn
+  MAX_ATTEMPTS = 5
+
   module Mixin
     extend ActiveSupport::Concern
 
@@ -13,24 +15,23 @@ module StatusColumn
       AvailableIterator.new(self)
     end
 
-    included do |base|
+    included do
       # TODO set column names
       class_attribute :status, :execute_at, :attempts
 
       before_create ->(record) { record.execute_at ||= Time.zone.now }
 
-      MAX_ATTEMPTS = 5
+      scope :attempts_not_exceeds, -> { where("attempts <= #{StatusColumn::MAX_ATTEMPTS}") }
+      scope :active, -> { live.where(status: :new) }
 
       scope :live, ->{
-        where("attempts <= #{MAX_ATTEMPTS}").
+        attempts_not_exceeds.
         where("execute_at < ? OR execute_at IS NULL", Time.zone.now)
       }
 
-      scope :active, -> { live.where(status: :new) }
-
       scope :pending, -> {
         where(status: :running).
-        where("attempts <= #{MAX_ATTEMPTS}").
+        attempts_not_exceeds.
         where("updated_at < ?", 10.minutes.ago)
       }
 

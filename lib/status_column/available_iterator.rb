@@ -3,12 +3,15 @@ require 'status_column/iterator'
 module StatusColumn
   class AvailableIterator < Iterator
     def initialize(model)
-      @model = model
+      @model = model.class
     end
 
     def each(&block)
-      @model.active.each { |el| safe_call(el, block) }
-      @model.pending.each { |el| safe_call(el, block) }
+      callback = lambda { |el| safe_call(el, block) }
+
+      @model.active.each(callback)
+      @model.pending.each(callback)
+      @model.rechecking.each(callback)
     end
   end
 end
