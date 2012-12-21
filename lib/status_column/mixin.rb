@@ -17,7 +17,8 @@ module StatusColumn
       end
 
       # TODO set column names
-      class_attribute :status, :execute_at, :attempts
+      class_attribute :status, :execute_at, :attempts, :execution_tracking
+      self.execution_tracking = false
 
       before_create ->(record) { record.execute_at ||= Time.zone.now }
 

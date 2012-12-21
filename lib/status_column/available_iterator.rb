@@ -7,11 +7,9 @@ module StatusColumn
     end
 
     def each
-      callback = lambda { |el| safe_call(el, &block) }
-
-      @model.active.each(callback)
-      @model.pending.each(callback)
-      @model.rechecking.each(callback)
+      @model.active.each { |el| safe_call(el, &block) }
+      @model.pending.each { |el| safe_call(el, &block) }
+      @model.rechecking.each { |el| safe_call(el, &block) }
     end
   end
 end

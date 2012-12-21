@@ -11,10 +11,17 @@ module StatusColumn
     end
 
     def safe_call(el, block)
-      el.run!
-      block.call(el)
-    rescue
-      el.failed!
+      if @model.execution_tracking
+        begin
+          el.run!
+          block.call(el)
+          el.finish!
+        rescue
+          el.error!
+        end
+      else
+        block.call(el)
+      end
     end
   end
 end
