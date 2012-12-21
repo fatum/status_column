@@ -11,7 +11,7 @@ module StatusColumn
   module Mixin
     extend ActiveSupport::Concern
 
-    def available
+    def self.available
       AvailableIterator.new(self)
     end
 
@@ -22,7 +22,8 @@ module StatusColumn
       before_create ->(record) { record.execute_at ||= Time.zone.now }
 
       scope :attempts_not_exceeds, -> { where("attempts <= #{StatusColumn::MAX_ATTEMPTS}") }
-      scope :active, -> { live.where(status: :new) }
+      scope :with_status, ->(status) { where(status: status) }
+      scope :active, -> { live.with_status(:new) }
 
       scope :live, ->{
         attempts_not_exceeds.
@@ -30,13 +31,13 @@ module StatusColumn
       }
 
       scope :pending, -> {
-        where(status: :running).
+        with_status(:running).
         attempts_not_exceeds.
         where("updated_at < ?", 10.minutes.ago)
       }
 
       scope :rechecking, -> {
-        where(status: :failed).live
+        with_status(:failed).live
       }
 
       state_machine :status, initial: :new do
