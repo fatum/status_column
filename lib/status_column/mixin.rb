@@ -11,11 +11,11 @@ module StatusColumn
   module Mixin
     extend ActiveSupport::Concern
 
-    def self.available
-      AvailableIterator.new(self)
-    end
-
     included do
+      def self.available
+        AvailableIterator.new(self)
+      end
+
       # TODO set column names
       class_attribute :status, :execute_at, :attempts
 
