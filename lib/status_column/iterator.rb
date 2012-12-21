@@ -10,7 +10,7 @@ module StatusColumn
       model.each { |element| safe_call(element, block) }
     end
 
-    def safe_call(el, block)
+    def safe_call(el, &block)
       if @model.execution_tracking
         begin
           el.run!

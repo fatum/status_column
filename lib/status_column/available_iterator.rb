@@ -6,7 +6,7 @@ module StatusColumn
       @model = model
     end
 
-    def each
+    def each(&block)
       @model.active.each { |el| safe_call(el, &block) }
       @model.pending.each { |el| safe_call(el, &block) }
       @model.rechecking.each { |el| safe_call(el, &block) }
