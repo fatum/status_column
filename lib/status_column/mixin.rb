@@ -23,7 +23,7 @@ module StatusColumn
       before_create ->(record) { record.execute_at ||= Time.zone.now }
 
       scope :attempts_not_exceeds, -> { where("attempts <= #{StatusColumn::MAX_ATTEMPTS}") }
-      scope :with_status, ->(status) { where(status: status) }
+      scope :with_status, ->(status) { where(status: status.to_s) }
       scope :active, -> { live.with_status(:new) }
 
       scope :live, ->{
