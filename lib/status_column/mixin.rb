@@ -20,7 +20,10 @@ module StatusColumn
       class_attribute :execution_tracking
       self.execution_tracking = false
 
-      before_create ->(record) { record.execute_at ||= Time.zone.now }
+      before_create do |record|
+        record.execute_at ||= Time.zone.now
+        record.attempts = 0
+      end
 
       scope :attempts_not_exceeds, -> { where("attempts <= #{StatusColumn::MAX_ATTEMPTS}") }
       scope :with_status, ->(status) { where(status: status.to_s) }
